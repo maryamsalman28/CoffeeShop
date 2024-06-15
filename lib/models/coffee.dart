@@ -1,17 +1,27 @@
 class Coffee {
-  final String name;
-  final String price;
-  final String imagePath;
-  final String caffeineLevel;
-  final String sugarLevel;
+  final String title;
+  final String description;
+  final String image;
 
   Coffee({
-    required this.name,
-     required this.price, 
-     required this.imagePath,
-      required this.caffeineLevel,
-        required this.sugarLevel,
-     });
+    required this.title,
+    required this.description,
+    required this.image,
+  });
 
-  
+  factory Coffee.fromJson(Map<String, dynamic> json) {
+    return Coffee(
+      title: json['title'],
+      description: json['description'],
+      image: json['image'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'description': description,
+      'image': image,
+    };
+  }
 }

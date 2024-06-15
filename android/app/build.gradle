@@ -2,6 +2,7 @@ plugins {
     id "com.android.application"
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
+    id 'com.google.gms.google-services'
 }
 
 def localProperties = new Properties()
@@ -49,6 +50,7 @@ android {
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -64,4 +66,27 @@ flutter {
     source '../..'
 }
 
-dependencies {}
+dependencies {
+  // Import the Firebase BoM
+  implementation platform('com.google.firebase:firebase-bom:33.1.0')
+
+
+  // TODO: Add the dependencies for Firebase products you want to use
+  // When using the BoM, don't specify versions in Firebase dependencies
+  // https://firebase.google.com/docs/android/setup#available-libraries
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'com.google.dagger.hilt.android.plugin'
+
+apply plugin: 'com.android.publish'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-parcelize'
+apply plugin: 'kotlinx-coroutines-android'
+apply plugin: 'kotlinx.serialization'
+
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'dagger.hilt.android.plugin'
+
+apply from: 'https://raw.githubusercontent.com/flutter/dev/plugins/platform_common/release/gradle_scripts/gradle_android_embedded_ktx.groovy'

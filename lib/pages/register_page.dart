@@ -1,103 +1,224 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertest/components/my_button.dart';
+import 'package:fluttertest/components/my_textfield.dart';
+import 'package:fluttertest/components/square_tile.dart';
 
-class RegisterPage extends StatelessWidget {
-  const RegisterPage({Key? key}) : super(key: key);
+class RegisterPage extends StatefulWidget {
+  final Function()? onTap;
+
+  const RegisterPage({super.key, required this.onTap});
+
+  @override
+  State<RegisterPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<RegisterPage> {
+  // text editing controllers
+  final emailController = TextEditingController();
+
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+
+  // sign user up method
+  void signUserUp() async {
+//show loading circle
+showDialog(
+  context: context,
+  builder: (context) {
+    return const Center(
+      child: CircularProgressIndicator(),
+    );
+  },
+);
+
+//try creating the user
+try{
+  if (passwordController.text == confirmPasswordController.text){
+    await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      email: emailController.text,
+      password: passwordController.text,
+    );
+  } else {
+
+        Navigator.pop(context);
+
+    showErrorMessage("Passwords do not match");
+
+
+  }
+
+    Navigator.pop(context);
+
+} on FirebaseAuthException catch (e) {
+      Navigator.pop(context);
+
+  showErrorMessage(e.code);
+} 
+
+  }
+
+  // wrong email message popup
+void showErrorMessage(String message) {
+  showDialog(
+    context: context, 
+    builder: (context){
+      return AlertDialog(
+        backgroundColor: Colors.white,
+        title: Center(
+          child: Text( 
+            message,
+            style: TextStyle(color: Colors.red)
+          )
+        )
+      );
+    },
+  );
+}
+
+
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(0), // Set app bar height to zero
-        child: AppBar(
-          backgroundColor: Colors.transparent, // Make app bar transparent
-          elevation: 0, // Remove elevation
-          automaticallyImplyLeading: false, // Remove the leading widget (back button)
-          centerTitle: true, // Center align title
-        ),
-      ),
-      body: Stack(
-        children: [
-          // Background image
-          Image.asset(
-            'lib/images/background-coffee.jpg', // Replace with your background image path
-            fit: BoxFit.cover,
-            width: double.infinity,
-            height: double.infinity,
-          ),
-          // Content
-          Center(
-            child: Container(
-              width: 400, // Adjust the width as needed
-              padding: EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.grey[300]?.withOpacity(0.7), // Semi-transparent grey background
-                border: Border.all(color: Colors.grey[400]!),
-                borderRadius: BorderRadius.circular(16),
+      backgroundColor: Colors.grey[300],
+      body: SafeArea(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: 50),
+
+              // logo
+              const Icon(
+                Icons.coffee,
+                size: 70,
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Image.asset(
-                    "lib/images/coffee-beans.png", // Correct file path
-                    width: 100, // Adjust width as needed
-                    height: 100, // Adjust height as needed
-                    fit: BoxFit.contain, // Fit the image inside the container
-                  ),
-                  SizedBox(height: 20),
-                    // "Register Now!" text
-                    Text(
-                    'Register Now!',
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Playball',
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                    SizedBox(height: 20), // Adjust spacing as needed
-                    // Registration Form Fields
-                    TextField(
-                      decoration: InputDecoration(
-                        labelText: 'Username',
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+
+              const SizedBox(height: 30),
+
+              // welcome back, you've been missed!
+              Text(
+                'Let\'s create an account for you!',
+                style: TextStyle(
+                  color: Colors.grey[700],
+                  fontSize: 15,
+                ),
+              ),
+
+              const SizedBox(height: 15),
+
+              // email textfield
+              MyTextField(
+                controller: emailController,
+                hintText: 'Email',
+                obscureText: false,
+              ),
+
+              const SizedBox(height: 6),
+
+              // password textfield
+              MyTextField(
+                controller: passwordController,
+                hintText: 'Password',
+                obscureText: true,
+              ),
+
+              const SizedBox(height: 6),
+
+              //confirm password textfield
+
+              MyTextField(
+                controller: confirmPasswordController,
+                hintText: 'Confirm Password',
+                obscureText: true,
+              ),
+
+              // forgot password?
+              
+
+              const SizedBox(height: 15),
+
+              // sign in button
+              MyButton(
+                text: 'Sign Up',
+                onTap: signUserUp,
+              ),
+
+              const SizedBox(height: 30),
+
+              // or continue with
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Divider(
+                        thickness: 0.5,
+                        color: Colors.grey[400],
                       ),
                     ),
-                    SizedBox(height: 16),
-                    TextField(
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    TextField(
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                      ),
-                      obscureText: true,
-                    ),
-                    SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        // Implement registration logic here
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 40),
-                      ),
-                      child: Text('Register'),
-                    ),
+                    //Padding(
+                     // padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                      //child: Text(
+                      //  'Or continue with',
+                        //style: TextStyle(color: Colors.grey[700]),
+                     // ),
+                    //),
+                    //Expanded(
+                      //child: Divider(
+                       // thickness: 0.5,
+                       // color: Colors.grey[400],
+                      //),
+                    //),
                   ],
                 ),
               ),
-            ),
-          ],
+
+              const SizedBox(height: 30),
+
+              // google + apple sign in buttons
+             // Row(
+               // mainAxisAlignment: MainAxisAlignment.center,
+                //children: const [
+                  // google button
+                  //SquareTile(imagePath: 'lib/images/google.png'),
+
+                  //SizedBox(width: 25),
+
+                  // apple button
+                  //SquareTile(imagePath: 'lib/images/apple.png')
+                //],
+              //),
+
+              const SizedBox(height: 30),
+
+              // not a member? register now
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Already have an account?',
+                    style: TextStyle(color: Colors.grey[700]),
+                  ),
+                  const SizedBox(width: 4),
+                  GestureDetector(
+                    onTap: widget.onTap,
+                    child: const Text(
+                      'Login now',
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            ],
+          ),
         ),
-      );
-    
+      ),
+    );
   }
 }

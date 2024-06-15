@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:contacts_service/contacts_service.dart';
 import 'package:lottie/lottie.dart';
 
 class ContactUsPage extends StatefulWidget {
@@ -12,6 +13,8 @@ class ContactUsPage extends StatefulWidget {
 class _ContactUsPageState extends State<ContactUsPage>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
+  List<Contact> _contacts = [];
+  bool _contactsLoaded = false;
 
   @override
   void initState() {
@@ -20,6 +23,19 @@ class _ContactUsPageState extends State<ContactUsPage>
       duration: const Duration(seconds: 2),
       vsync: this,
     );
+    _loadContacts();
+  }
+
+  Future<void> _loadContacts() async {
+    try {
+      Iterable<Contact> contacts = await ContactsService.getContacts();
+      setState(() {
+        _contacts = contacts.toList();
+        _contactsLoaded = true;
+      });
+    } catch (e) {
+      print("Failed to get contacts: $e");
+    }
   }
 
   @override
@@ -98,7 +114,6 @@ class _ContactUsPageState extends State<ContactUsPage>
                   decoration: InputDecoration(
                     labelText: 'Name',
                     border: OutlineInputBorder(),
-                    
                   ),
                 ),
                 SizedBox(height: 8),
@@ -150,8 +165,7 @@ class _ContactUsPageState extends State<ContactUsPage>
                       if (submit == false) {
                         submit = true;
                         _controller.forward();
-
-                      }else{
+                      } else {
                         submit= false;
                         _controller.reverse();
                       }
@@ -162,7 +176,31 @@ class _ContactUsPageState extends State<ContactUsPage>
                       controller: _controller,
                     ),
                   ),
-                )
+                ),
+                SizedBox(height: 32),
+                _contactsLoaded
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: _contacts.map((contact) {
+                          return Card(
+                            color: Theme.of(context).colorScheme.primary,
+                            elevation: 4,
+                            margin: EdgeInsets.symmetric(vertical: 8),
+                            child: ListTile(
+                              leading: Icon(Icons.contact_phone),
+                              title: Text(contact.displayName ?? 'No Name'),
+                              subtitle: Text(
+                                contact.phones!.isNotEmpty
+                                    ? contact.phones!.first.value!
+                                    : 'No Phone Number',
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      )
+                    : Center(
+                        child: CircularProgressIndicator(),
+                      ),
               ],
             ),
           ),

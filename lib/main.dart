@@ -1,22 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertest/models/coffee_shop.dart';
-import 'package:fluttertest/pages/login_page.dart';
-import 'package:fluttertest/themes/dark_theme.dart';
-import 'package:fluttertest/themes/light_theme.dart';
-import 'package:fluttertest/themes/theme_provider.dart';
+import 'package:fluttertest/pages/auth_page.dart';
+import 'package:fluttertest/pages/home_page.dart';
 import 'package:provider/provider.dart';
+import 'models/coffee_shop.dart';
+import 'pages/login_page.dart';
+import 'themes/theme_provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-import 'pages/home_page.dart';
-
-void main() {
-  runApp(ChangeNotifierProvider(
-    create: (context) => ThemeProvider(),
-    child:const MyApp(),
-    ),
-  );
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+ await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+ );
   
 
-    
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => ThemeProvider()),
+        ChangeNotifierProvider(create: (context) => CoffeeShop()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -24,17 +32,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => CoffeeShop(),
-      builder: (context, child) =>  MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: Provider.of<ThemeProvider>(context).themedata,
-        home: const LoginPage(),
-
-        
-      
-      ),
-      );
-    
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: Provider.of<ThemeProvider>(context).themedata,
+      home:  AuthPage(),
+    );
   }
 }
